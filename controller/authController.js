@@ -31,12 +31,12 @@ exports.login = (req, res) => {
   // Get user by email
   getUserByEmail(email, (err, user) => {
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Invalid User Name or Password' });
     }
     // Compare passwords
     comparePassword(password, user.userPassword, (err, isMatch) => {
       if (!isMatch) {
-        return res.status(400).json({ message: 'Wrong Password credentials' });
+        return res.status(400).json({ message: 'Invalid User Name or Password' });
       }
       // Generate JWT token
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
