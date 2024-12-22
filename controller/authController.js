@@ -14,7 +14,7 @@ exports.register = (req, res) => {
     // Create new user
     createUser(email, password, (err, result) => {
       if (err) {
-        return res.status(500).json({ message: 'Server Error' });
+        return res.status(500).json({ message: 'Server Error need to check ' });
       }
 
       // Generate JWT token
@@ -41,7 +41,7 @@ exports.login = (req, res) => {
       // Generate JWT token
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
-      res.status(200).json({ message: 'Login successful', token });
+      res.status(200).json({ message: 'Login successfully', token });
     });
   });
 };
