@@ -1,4 +1,5 @@
 // controller/creditCardController.js
+const stripe = require('stripe')(process.env.STRIPE_SANDBOX);
 
 const { createCreditCard, getAllCreditCards, getCreditCardById } = require('../models/creditCardModel');
 
@@ -56,3 +57,35 @@ exports.getCreditCardById = (req, res) => {
     res.status(200).json({ card });
   });
 };
+
+
+exports.chargePayment = async (req, res) => {
+  const { token, amount } = req.body;
+
+  if (!token || !amount) {
+    return res.status(400).json({ message: 'Token and amount are required' });
+  }
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,  // Amount in cents
+      currency: 'usd',
+      payment_method: token,  // The token received from the frontend
+      confirmation_method: 'manual',
+      confirm: true,
+    });
+
+    if (paymentIntent.status === 'succeeded') {
+      return res.status(200).json({ success: true, message: 'Payment successful' });
+    } else {
+      return res.status(400).json({ success: false, message: 'Payment failed' });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+
+
+
