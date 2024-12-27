@@ -1,6 +1,6 @@
 // controller/creditCardController.js
 if (!process.env.STRIPE_SANDBOX) {
-  throw new Error("Variable is not defined.");
+  throw new Error("key is not defined.");
 }
 
 const stripe = require('stripe')(process.env.STRIPE_SANDBOX);
