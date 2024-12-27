@@ -1,5 +1,10 @@
 // controller/creditCardController.js
+if (!process.env.STRIPE_SANDBOX) {
+  throw new Error("Variable is not defined.");
+}
+
 const stripe = require('stripe')(process.env.STRIPE_SANDBOX);
+
 
 const { createCreditCard, getAllCreditCards, getCreditCardById } = require('../models/creditCardModel');
 

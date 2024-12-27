@@ -23,7 +23,7 @@ const loginLimiter = rateLimit({
 //     // Create new user
 //     createUser(email, password, (err, result) => {
 //       if (err) {
-//         return res.status(500).json({ message: 'Server Error need to check ' });
+//         return res.status(500).json({ message: 'Server Error' });
 //       }
 
 //       // Generate JWT token
