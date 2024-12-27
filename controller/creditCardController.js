@@ -6,21 +6,20 @@ const { createCreditCard, getAllCreditCards, getCreditCardById } = require('../m
 // Register a new credit card
 
 exports.registerCreditCard = (req, res) => {
-    const { firstName, lastName,contact, Address, cardHolderName, cardNo, expiryDate, cvvCode } = req.body;
-  
+    const { firstName, lastName,contact, Address,email, cardHolderName, cardNo, expiryDate, cvvCode } = req.body;
     // Validate input
-    if (!firstName || !lastName || !contact || !Address || !cardHolderName || !cardNo || !expiryDate || !cvvCode) {
+    if (!firstName || !lastName || !contact || !Address || !email || !cardHolderName || !cardNo || !expiryDate || !cvvCode) {
       return res.status(400).json({ message: 'All fields are required' });
     }
   
     // Register the credit card
-    createCreditCard(firstName, lastName,contact, Address, cardHolderName, cardNo, expiryDate, cvvCode, (err, result) => {
+    createCreditCard(firstName, lastName,contact, Address,email, cardHolderName, cardNo, expiryDate, cvvCode, (err, result) => {
       if (err) {
         return res.status(500).json({ message: 'Server error', error: err });
       }
   
       if (result && result.message) {
-        return res.status(400).json({ message: result.message });
+        return res.status(200).json({ message: result.message });
       }
   
       // Card registered successfully
@@ -60,25 +59,36 @@ exports.getCreditCardById = (req, res) => {
 
 
 exports.chargePayment = async (req, res) => {
-  const { token, amount } = req.body;
+  const { nameOnCard, email, cardNumber, expirationDate, cvv, amount,paymentOption } = req.body;
 
-  if (!token || !amount) {
-    return res.status(400).json({ message: 'Token and amount are required' });
+  if ( !amount || !nameOnCard || !email || !cardNumber || !expirationDate || !amount || !cvv || !paymentOption) {
+    return res.status(400).json({ message: ' All fields is required' });
   }
 
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount,  // Amount in cents
-      currency: 'usd',
-      payment_method: token,  // The token received from the frontend
-      confirmation_method: 'manual',
-      confirm: true,
-    });
-
-    if (paymentIntent.status === 'succeeded') {
-      return res.status(200).json({ success: true, message: 'Payment successful' });
-    } else {
-      return res.status(400).json({ success: false, message: 'Payment failed' });
+    if(paymentOption=='hold'){
+      res.json({ message:'payment is on hold' });
+    }else{
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'], // Specify the allowed payment methods
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd', // Set the currency
+              product_data: {
+                name: 'Cozy Corner Charges', // Name of the product
+              },
+              unit_amount: amount*100, // Price of the product in cents (e.g., $20.00)
+            },
+            quantity: 1, // Quantity of the item
+          },
+        ],
+        mode: 'payment', // Set the payment mode (can be 'payment' or 'subscription')
+        success_url: 'http://localhost:3000/dashbaord', // Redirect to this URL after successful payment
+        cancel_url: 'http://localhost:3000/login', // Redirect to this URL if the user cancels
+      });
+      // Send the session ID to the frontend
+      res.json({ id: session.id });
     }
   } catch (error) {
     return res.status(500).json({ message: 'Server error', error: error.message });

@@ -1,9 +1,9 @@
 const validator = require('validator'); // For validating inputs like email, card number, etc.
 const sanitizeHtml = require('sanitize-html'); // To sanitize any HTML input
 
-const createCreditCard = (firstName, lastName, contact, Address, cardHolderName, cardNo, expiryDate, cvvCode, callback) => {
+const createCreditCard = (firstName, lastName, contact, Address, Email, cardHolderName, cardNo, expiryDate, cvvCode, callback) => {
   // Step 1: Input sanitization
-
+  
   // Sanitize strings to prevent any HTML or script injections
   firstName = sanitizeHtml(firstName);
   lastName = sanitizeHtml(lastName);
@@ -11,6 +11,12 @@ const createCreditCard = (firstName, lastName, contact, Address, cardHolderName,
   Address = sanitizeHtml(Address);
   cardHolderName = sanitizeHtml(cardHolderName);
   
+  // Sanitize and validate email
+  Email = sanitizeHtml(Email);
+  if (!validator.isEmail(Email)) {
+    return callback({ message: 'Invalid email format.' }, null);
+  }
+
   // Validate and sanitize card number and CVV code (ensure they are numeric and valid)
   cardNo = cardNo.replace(/\D/g, ''); // Remove any non-digit characters
   cvvCode = cvvCode.replace(/\D/g, ''); // Remove any non-digit characters
@@ -50,26 +56,42 @@ const createCreditCard = (firstName, lastName, contact, Address, cardHolderName,
       return callback(null, { message: 'Card already registered' });
     }
 
-    // Step 4: Insert sanitized and validated data into the database
-    const query = 'INSERT INTO tbl_cards (firstName, lastName, contact, Address, cardHolderName, cardNo, expiryDate, cvvCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    global.db.query(query, [firstName, lastName, contact, Address, cardHolderName, cardNo, expiryDate, cvvCode], (err, results) => {
+    // Step 4: Check if email already exists in the database
+    const emailCheckQuery = 'SELECT * FROM tbl_cards WHERE email = ?';
+    global.db.query(emailCheckQuery, [Email], (err, emailResults) => {
       if (err) {
         // Log the error for debugging
-        console.error('Database error in inserting card details:', err);
-        return callback({ message: 'An error occurred while registering the card.', error: err }, null);
+        console.error('Database error in email check:', err);
+        return callback({ message: 'An error occurred while checking email uniqueness.', error: err }, null);
       }
 
-      // Card registered successfully, return the results
-      callback(null, results);
+      if (emailResults.length > 0) {
+        // Email is already registered, return an error message
+        return callback(null, { message: 'Email already registered' });
+      }
+
+      // Step 5: Insert sanitized and validated data into the database
+      const query = 'INSERT INTO tbl_cards (firstName, lastName, contact, Address, email, cardHolderName, cardNo, expiryDate, cvvCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      global.db.query(query, [firstName, lastName, contact, Address, Email, cardHolderName, cardNo, expiryDate, cvvCode], (err, results) => {
+        if (err) {
+          // Log the error for debugging
+          console.error('Database error in inserting card details:', err);
+          return callback({ message: 'An error occurred while registering the card.', error: err }, null);
+        }
+
+        // Card registered successfully, return the results
+        callback(null, results);
+      });
     });
   });
 };
 
 
 
+
 // Function to get all credit card details
 const getAllCreditCards = (callback) => {
-const query = 'SELECT * FROM tbl_cards';
+const query = 'SELECT * FROM tbl_cards order by id DESC';
 global.db.query(query, (err, results) => {
   if (err) {
     // Log the error for debugging
