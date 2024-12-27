@@ -1,5 +1,6 @@
 const validator = require('validator'); // For validating inputs like email, card number, etc.
 const sanitizeHtml = require('sanitize-html'); // To sanitize any HTML input
+var luhn = require("luhn");
 
 const createCreditCard = (firstName, lastName, contact, Address, Email, cardHolderName, cardNo, expiryDate, cvvCode, callback) => {
   // Step 1: Input sanitization
@@ -24,9 +25,10 @@ const createCreditCard = (firstName, lastName, contact, Address, Email, cardHold
   // Step 2: Input validation
 
   // Validate the card number using Luhn algorithm (for example, using validator library or custom logic)
-  if (!validator.isLength(cardNo, { min: 13, max: 19 })) {
-    return callback({ message: 'Card number must be between 13 and 19 digits.' }, null);
+  if (!luhn.validate(cardNo)) {
+    return callback({ message: 'Provide correct card no.' }, null);
   }
+
 
   if (!validator.isNumeric(cardNo)) {
     return callback({ message: 'Card number must only contain numeric characters.' }, null);

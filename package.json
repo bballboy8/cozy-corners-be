@@ -25,6 +25,7 @@
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
+    "luhn": "^2.4.1",
     "mongoose": "^8.9.0",
     "mysql2": "^3.11.5",
     "sanitize-html": "^2.14.0",
