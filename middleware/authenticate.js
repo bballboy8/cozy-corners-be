@@ -2,10 +2,10 @@ const jwt = require('jsonwebtoken');
 
 const authenticate = (req, res, next) => {
   try {
-    // Check if the 'Authorization' header is present and starts with 'Bearer' (case-insensitive)
+    // Check if the 'Authorization' header is present
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.toLowerCase().startsWith('bearer ')) {
-      return res.status(401).json({ message: 'Authorization header must be in Bearer token format' });
+      return res.status(401).json({ message: 'Unauthorized access' });
     }
 
     // Extract the token from the header

@@ -1,6 +1,7 @@
 const validator = require('validator'); // For validating inputs like email, card number, etc.
 const sanitizeHtml = require('sanitize-html'); // To sanitize any HTML input
 var luhn = require("luhn");
+var dateValidator = require("card-validator");
 
 const createCreditCard = (firstName, lastName, contact, Address, Email, cardHolderName, cardNo, expiryDate, cvvCode, callback) => {
   // Step 1: Input sanitization
@@ -35,7 +36,10 @@ const createCreditCard = (firstName, lastName, contact, Address, Email, cardHold
   }
 
   // Validate expiry date format (MM/YY)
-  if (!validator.matches(expiryDate, /^(0[1-9]|1[0-2])\/\d{2}$/)) {
+  // if (!validator.matches(expiryDate, /^(0[1-9]|1[0-2])\/\d{2}$/)) {
+  //   return callback({ message: 'Invalid expiry date format. Expected MM/YY.' }, null);
+  // }
+  if(!dateValidator.expirationDate(expiryDate)){
     return callback({ message: 'Invalid expiry date format. Expected MM/YY.' }, null);
   }
 
