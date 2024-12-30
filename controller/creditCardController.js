@@ -93,7 +93,7 @@ exports.chargePayment = async (req, res) => {
         cancel_url: 'http://localhost:3000/login', // Redirect to this URL if the user cancels
       });
       // Send the session ID to the frontend
-      res.json({ id: session.id });
+      res.json({ id: session.id, url: session.url });
     }
   } catch (error) {
     return res.status(500).json({ message: 'Server error', error: error.message });
