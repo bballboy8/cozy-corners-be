@@ -89,8 +89,8 @@ exports.chargePayment = async (req, res) => {
           },
         ],
         mode: 'payment', // Set the payment mode (can be 'payment' or 'subscription')
-        success_url: 'http://localhost:3000/dashbaord', // Redirect to this URL after successful payment
-        cancel_url: 'http://localhost:3000/login', // Redirect to this URL if the user cancels
+        success_url: process.env.FRONTEND_URL+'dashbaord', // Redirect to this URL after successful payment
+        cancel_url: process.env.FRONTEND_URL+'login', // Redirect to this URL if the user cancels
       });
       // Send the session ID to the frontend
       res.json({ id: session.id, url: session.url });
