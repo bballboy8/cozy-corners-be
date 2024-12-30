@@ -30,6 +30,7 @@
     "mongoose": "^8.9.0",
     "mysql2": "^3.11.5",
     "sanitize-html": "^2.14.0",
+    "serverless-http": "^3.2.0",
     "stripe": "^17.5.0",
     "validator": "^13.12.0"
   },
