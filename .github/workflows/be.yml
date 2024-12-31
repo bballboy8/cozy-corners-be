@@ -40,7 +40,7 @@ jobs:
 
       # Zip application
       - name: Zip application
-        run: zip -r app.zip . -x '*.git*' '*.github*' '.env*'
+        run: zip -r app.zip . -x '*.git*' '*.github*'
 
       # Install AWS CLI
       - name: Install AWS CLI
