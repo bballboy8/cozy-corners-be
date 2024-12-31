@@ -42,12 +42,25 @@ jobs:
       - name: Zip application
         run: zip -r app.zip . -x '*.git*' '*.github*' '.env*'
 
+      # Install AWS CLI
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      # Configure AWS CLI
+      - name: Configure AWS CLI
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          aws configure set default.region us-east-1
+
       # Deploy to AWS Lambda
       - name: Deploy to AWS Lambda
-        uses: appleboy/lambda-action@v1
-        with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: us-east-1
-          function_name: "cozy-corners-be"
-          zip_file: "app.zip"
+        run: |
+          aws lambda update-function-code \
+            --function-name cozy-corners-be \
+            --zip-file fileb://app.zip
