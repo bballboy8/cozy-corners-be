@@ -1,0 +1,53 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches:
+      - chirag
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Create .env file dynamically
+      - name: Create .env file
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "STRIPE_LIVE=${{ secrets.STRIPE_LIVE }}" >> .env
+          echo "STRIPE_SANDBOX=${{ secrets.STRIPE_SANDBOX }}" >> .env
+
+      # Zip application
+      - name: Zip application
+        run: zip -r app.zip . -x '*.git*' '*.github*' '.env*'
+
+      # Deploy to AWS Lambda
+      - name: Deploy to AWS Lambda
+        uses: appleboy/lambda-action@v1
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
+          function_name: "cozy-corners-be"
+          zip_file: "app.zip"
