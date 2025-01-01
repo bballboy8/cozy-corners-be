@@ -6,6 +6,7 @@ const creditCardRoutes = require('./routes/creditCardRoutes');
 const cors = require('cors');
 const helmet = require('helmet');
 
+
 const app = express();
 
 app.use(cors());
@@ -13,6 +14,15 @@ app.use(helmet());
 
 // Middleware to parse JSON
 app.use(express.json());
+
+//check the variables before using them 
+const requiredEnvVars = ['DB_HOST', 'DB_USER', 'DB_NAME', 'DB_PORT'];
+requiredEnvVars.forEach((envVar) => {
+  if (!process.env[envVar]) {
+    console.error(`Environment variable ${envVar} is missing. Please check your .env file.`);
+    process.exit(1); // Exit the application if a required variable is missing
+  }
+});
 
 // MySQL Database Connection
 const db = mysql.createConnection({
