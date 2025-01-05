@@ -33,8 +33,6 @@ const db = mysql.createConnection({
   port: process.env.DB_PORT || 3307,
 });
 
-console.log("DB Host:", process.env.DB_HOST);
-
 // Database connection logging for Lambda (no exit)
 db.connect((err) => {
   if (err) {
